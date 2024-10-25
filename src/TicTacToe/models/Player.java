@@ -1,16 +1,20 @@
 package TicTacToe.models;
 
+import java.util.Scanner;
+
 public class Player {
     private String name;
     private Long id;
     private Symbol symbol;
     private PlayerType playerType;
+    private Scanner scanner;
 
     public Player(String name, Long id, Symbol symbol, PlayerType playerType) {
         this.name = name;
         this.id = id;
         this.symbol = symbol;
         this.playerType = playerType;
+        scanner = new Scanner(System.in);
     }
 
     public String getName() {
@@ -43,5 +47,14 @@ public class Player {
 
     public void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
+    }
+
+    public Move makeMove(Board board) {
+        System.out.println("pls enter row number");
+        int row = scanner.nextInt();
+        System.out.println("pls enter col number");
+        int col = scanner.nextInt();
+
+        return new Move(new Cell(row,col),this)   ;
     }
 }

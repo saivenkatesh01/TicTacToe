@@ -9,6 +9,9 @@ public class Move {
         this.player = player;
     }
 
+    public void makeMove(Game game){
+
+    }
     public Player getPlayer() {
         return player;
     }

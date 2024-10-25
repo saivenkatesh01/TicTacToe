@@ -43,4 +43,7 @@ public class Cell {
     }
 
     private Player player;
+    public boolean isEmpty(){
+        return this.cellState.equals(CellState.EMPTY);
+    }
 }
