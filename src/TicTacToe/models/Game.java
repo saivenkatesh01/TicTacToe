@@ -1,6 +1,10 @@
 package TicTacToe.models;
 import TicTacToe.exceptions.DuplicateSymbolFoundException;
 import TicTacToe.exceptions.InvalidPlayerCountException;
+import TicTacToe.strategy.gameWinningStrategy.ColumnWinningStrategy;
+import TicTacToe.strategy.gameWinningStrategy.DiagonalWinningStrategy;
+import TicTacToe.strategy.gameWinningStrategy.GameWinningStrategy;
+import TicTacToe.strategy.gameWinningStrategy.RowWinningStrategy;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,6 +18,7 @@ public class Game {
     private List<Player> players;
     private int nextPlayerMoveIndex;
     private GameState gameState;
+    private List<GameWinningStrategy> gameWinningStrategies;
 
     public GameState getGameState() {
         return gameState;
@@ -23,12 +28,13 @@ public class Game {
         this.gameState = gameState;
     }
 
-    private Game(int dimension, List<Player> players) {
+    private Game(int dimension, List<Player> players, List<GameWinningStrategy> gameWinningStrategies ) {
         this.board = new Board(dimension);
         this.players = players;
         this.moves = new ArrayList<>();
         this.nextPlayerMoveIndex = 0;
         this.gameState=GameState.IN_PROGRESS;
+        this.gameWinningStrategies = gameWinningStrategies;
     }
     public static Builder getBuilder(){
         return new Builder();
@@ -57,6 +63,21 @@ public class Game {
         nextPlayerMoveIndex %= players.size();
 
         //check the winner
+        if(checkWinner(board,move)){
+            gameState=GameState.ENDED;
+            winner=currentPlayer;
+        }
+        else if(moves.size()==board.getSize() * board.getSize()){
+            gameState=GameState.DRAW;
+        }
+    }
+
+    private boolean checkWinner(Board board, Move move) {
+        // check all winning strategy
+        for(GameWinningStrategy winningStrategy : gameWinningStrategies){
+              if(winningStrategy.checkWinner(board, move)) return true;
+        }
+       return false;
     }
 
     private boolean validateMove(Move move, Board board){
@@ -125,7 +146,14 @@ public class Game {
         public Game build() throws InvalidPlayerCountException, DuplicateSymbolFoundException {
             // validation
             validateGame(dimension,players);
-            return new Game(dimension,players);
+            return new Game(
+                    dimension,
+                    players,
+                    List.of(
+                            new RowWinningStrategy(),
+                            new ColumnWinningStrategy(),
+                            new DiagonalWinningStrategy()
+                    ));
         }
 
     }
@@ -168,5 +196,13 @@ public class Game {
 
     public void setNextPlayerMoveIndex(int nextPlayerMoveIndex) {
         this.nextPlayerMoveIndex = nextPlayerMoveIndex;
+    }
+
+    public List<GameWinningStrategy> getGameWinningStrategies() {
+        return gameWinningStrategies;
+    }
+
+    public void setGameWinningStrategies(List<GameWinningStrategy> gameWinningStrategies) {
+        this.gameWinningStrategies = gameWinningStrategies;
     }
 }
